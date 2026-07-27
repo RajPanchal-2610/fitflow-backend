@@ -69,8 +69,8 @@ export const authenticate = async (req: AuthenticatedRequest, res: Response, nex
         // 3. Resolve context based on ownership, staff status, and activeRoleHeader
         if (isOwner && hasStaffRecord) {
             // User is BOTH owner and staff member
-            if (activeRoleHeader === 'trainer' || activeRoleHeader === 'staff') {
-                // User explicitly selected to act as Trainer/Staff
+            if (activeRoleHeader === 'staff') {
+                // User explicitly selected to act as Staff
                 req.gymId = staffData.gym_id;
                 req.staffId = staffData.id;
 
@@ -126,7 +126,9 @@ export const authenticate = async (req: AuthenticatedRequest, res: Response, nex
             req.permissions = rolePerms.map((rp: any) => rp.permissions?.action).filter(Boolean);
             return next();
         } else {
-            return res.status(403).json({ error: 'Access Denied: Not an active staff member or owner' });
+            // User is a regular independent member (not staff or owner)
+            req.permissions = []; 
+            return next();
         }
     } catch (error) {
         console.error('Auth Middleware Error:', error);
@@ -152,6 +154,10 @@ export const requireFeature = (featureKey: string) => {
         authenticate,
         async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
             try {
+                if (req.isSuperAdmin) {
+                    return next();
+                }
+
                 if (!req.gymId) {
                     return res.status(400).json({ error: 'Gym ID not found in request context' });
                 }

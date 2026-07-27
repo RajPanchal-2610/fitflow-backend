@@ -410,7 +410,7 @@ export class SubscriptionScheduler {
               renewed_at,
               gym_members (
                 full_name,
-                trainer_id,
+                assigned_staff_id,
                 gym_staff (
                   user_id
                 )
@@ -441,9 +441,9 @@ export class SubscriptionScheduler {
             const memberName = member?.full_name || 'A member';
             const planName = plan?.name || 'membership plan';
 
-            const trainerUserId = member?.gym_staff?.user_id || null;
-            const targetGymId = trainerUserId ? null : history.gym_id;
-            const targetUserId = trainerUserId || null;
+            const staffUserId = member?.gym_staff?.user_id || null;
+            const targetGymId = staffUserId ? null : history.gym_id;
+            const targetUserId = staffUserId || null;
 
             // Check for duplicate with same offset label
             let dupQuery = supabaseAdmin
@@ -564,7 +564,7 @@ export class SubscriptionScheduler {
             remarks,
             gym_members (
               full_name,
-              trainer_id,
+              assigned_staff_id,
               gym_staff (
                 user_id
               )
@@ -602,9 +602,9 @@ export class SubscriptionScheduler {
           const planName = plan?.name || 'membership plan';
 
           const isPtPayment = payment.remarks === 'Personal Training Fee';
-          const trainerUserId = isPtPayment ? (member?.gym_staff?.user_id || null) : null;
-          const targetGymId = trainerUserId ? null : payment.gym_id;
-          const targetUserId = trainerUserId || null;
+          const staffUserId = isPtPayment ? (member?.gym_staff?.user_id || null) : null;
+          const targetGymId = staffUserId ? null : payment.gym_id;
+          const targetUserId = staffUserId || null;
 
           // Check existing notifications for this member within the dedup window
           let dupQuery = supabaseAdmin
