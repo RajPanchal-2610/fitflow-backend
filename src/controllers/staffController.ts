@@ -65,7 +65,7 @@ export const getStaffByGym = async (req: Request, res: Response) => {
 // POST: Create New Staff (Includes optional Supabase Auth User)
 export const createStaff = async (req: Request, res: Response) => {
     try {
-        const { gym_id, email, password, full_name, role_id, phone, salary, allow_login } = req.body;
+        const { gym_id, email, password, full_name, role_id, phone, salary, allow_login, join_date } = req.body;
 
         if (!gym_id || !role_id || !full_name) {
             return res.status(400).json({ error: 'Missing required fields: gym_id, role_id, full_name' });
@@ -130,7 +130,8 @@ export const createStaff = async (req: Request, res: Response) => {
             role_id,
             status: 'active',
             is_active: true,
-            allow_login: !!allow_login
+            allow_login: !!allow_login,
+            join_date: join_date || undefined
         };
 
         const { data: staffData, error: staffError } = await supabaseAdmin
@@ -174,7 +175,7 @@ export const createStaff = async (req: Request, res: Response) => {
 export const updateStaff = async (req: Request, res: Response) => {
     try {
         const staffId = parseInt(req.params.id);
-        const { email, password, full_name, role_id, phone, salary, allow_login, status } = req.body;
+        const { email, password, full_name, role_id, phone, salary, allow_login, status, join_date } = req.body;
 
         // 1. Get existing staff record
         const { data: existingStaff, error: fetchError } = await supabaseAdmin
@@ -253,7 +254,8 @@ export const updateStaff = async (req: Request, res: Response) => {
             role_id,
             status,
             user_id: userId,
-            allow_login: !!allow_login
+            allow_login: !!allow_login,
+            join_date: join_date || undefined
         };
 
         const { data: staffData, error: staffError } = await supabaseAdmin
