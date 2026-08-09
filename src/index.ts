@@ -18,6 +18,8 @@ import tournamentRoutes from './routes/tournamentRoutes';
 import globalTournamentRoutes from './routes/globalTournamentRoutes';
 import workoutRoutes from './routes/workoutRoutes';
 import gymRoutes from './routes/gymRoutes';
+import publicRoutes from './routes/publicRoutes';
+import leadRoutes from './routes/leadRoutes';
 import { subscriptionScheduler } from './services/subscriptionScheduler';
 
 const app = express();
@@ -28,6 +30,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+app.use('/api', leadRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/roles', rolesRoutes);
 app.use('/api/attendance', attendanceRoutes);
@@ -40,6 +43,7 @@ app.use('/api/tournaments/global', globalTournamentRoutes);
 app.use('/api/tournaments', tournamentRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/gyms', gymRoutes);
+app.use('/api/public', publicRoutes);
 
 app.get('/', (req, res) => {
   res.send('Gymatrix Custom Backend API is running!');
@@ -51,7 +55,7 @@ async function initializeStorageBuckets() {
   try {
     const { data: buckets, error } = await supabaseAdmin.storage.listBuckets();
     if (error) throw error;
-    
+
     const exists = buckets.some(b => b.id === 'tournament-videos');
     if (!exists) {
       const { error: createError } = await supabaseAdmin.storage.createBucket('tournament-videos', {
@@ -71,7 +75,7 @@ async function initializeStorageBuckets() {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
   initializeStorageBuckets();
-  
+
   // Initialize the subscription scheduler
   subscriptionScheduler.start();
 });
